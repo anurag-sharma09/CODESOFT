@@ -1,0 +1,1 @@
+{\n  "version": 2,\n  "routes": [\n    {\n      "src": "/api/(.*)",\n      "dest": "/api/$1"\n    },\n    {\n      "src": "/(.*)",\n      "dest": "/public/$1"\n    }\n  ],\n  "static": {\n    "include": [\n      "/public"\n    ]\n  }\n}
