@@ -169,11 +169,15 @@ function toggleEye(id, btn) {
 }
 
 // ── Create account ────────────────────────────────────
-function createAccount() {
-  const pw  = document.getElementById('pwd').value;
+async function createAccount() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const pw = document.getElementById('pwd').value;
   const pwErr = document.getElementById('err-pwd');
   const pwInp = document.getElementById('pwd');
   const termsOk = document.getElementById('terms').checked;
+  const interests = Array.from(document.querySelectorAll('.chip.active')).map(c => c.textContent.replace(/[^\w\s]/g, '').trim());
 
   if (!pw || pw.length < 8) {
     pwInp.classList.add('input--bad');
@@ -196,12 +200,13 @@ function createAccount() {
   // Loading state
   const btn = document.getElementById('btn3');
   btn.disabled = true;
+  const originalBtnHtml = btn.innerHTML;
   btn.innerHTML = `
     <svg style="animation:kspin .7s linear infinite;flex-shrink:0" width="17" height="17" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,.3)" stroke-width="3"/>
       <path d="M12 3a9 9 0 019 9" stroke="white" stroke-width="3" stroke-linecap="round"/>
     </svg>
-    Creating your account…`;
+    Saving to database…`;
 
   if (!document.getElementById('ks')) {
     const s = document.createElement('style');
@@ -210,11 +215,28 @@ function createAccount() {
     document.head.appendChild(s);
   }
 
-  setTimeout(() => {
-    showSuccess();
+  try {
+    const response = await fetch('http://localhost:5000/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, password: pw, interests })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      showSuccess();
+    } else {
+      toast(data.error || 'Signup failed');
+      shake(btn);
+    }
+  } catch (error) {
+    console.error('Network error:', error);
+    toast('Server connection failed. Is the backend running?');
+  } finally {
     btn.disabled = false;
-    btn.innerHTML = 'Create Account <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  }, 2000);
+    btn.innerHTML = originalBtnHtml;
+  }
 }
 
 // ── Show success ──────────────────────────────────────
