@@ -66,6 +66,12 @@ app.get('/', (req, res) => {
   res.send('NexaApp Backend API is running...');
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// Export the app for Vercel serverless functions
+module.exports = app;
+
+// Only listen if running locally
+if (process.env.NODE_ENV !== 'production' && require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Local Server running on http://localhost:${PORT}`);
+  });
+}
