@@ -2,10 +2,10 @@
   "name": "signup-flow-new",
   "version": "1.0.0",
   "description": "INTERNSHIP",
-  "main": "api/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node index.js",
+    "dev": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
