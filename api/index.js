@@ -77,9 +77,13 @@ router.post('/login', async (req, res) => {
     const { email } = req.body;
     const userRecord = await auth.getUserByEmail(email);
     const userDoc = await db.collection('users').doc(userRecord.uid).get();
+    const userData = userDoc.data();
+    
+    const name = userRecord.displayName || (userData ? userData.name : 'User');
+
     res.json({
       message: 'Login successful',
-      user: { name: userRecord.displayName, email: userRecord.email, interests: userDoc.exists ? userDoc.data().interests : [] }
+      user: { name, email: userRecord.email, interests: userData ? userData.interests : [] }
     });
   } catch (error) {
     res.status(401).json({ error: 'Authentication failed' });
@@ -104,7 +108,6 @@ router.get('/health', (req, res) => {
 });
 
 // ── MOUNT ROUTER ──
-// Use /api for local dev and standard paths, and /.netlify/functions/index for Netlify
 app.use('/api', router);
 app.use('/.netlify/functions/index', router);
 

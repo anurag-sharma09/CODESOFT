@@ -339,9 +339,10 @@ function showSuccess() {
 
 // ── Dashboard ────────────────────────────────────────
 function populateDashboard(user) {
-  document.getElementById('dash-name').textContent = user.name;
+  const name = user.name || 'User';
+  document.getElementById('dash-name').textContent = name;
   document.getElementById('dash-email').textContent = user.email;
-  document.getElementById('dash-avatar').textContent = user.name.charAt(0).toUpperCase();
+  document.getElementById('dash-avatar').textContent = name.charAt(0).toUpperCase();
 
   const chips = document.getElementById('dash-interests');
   chips.innerHTML = '';
