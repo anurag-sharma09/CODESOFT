@@ -21,6 +21,18 @@
     <div class="bg-blob bg-blob--2"></div>
   </div>
 
+  <!-- Theme Toggle -->
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg class="sun" viewBox="0 0 24 24" fill="none"><path d="M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <svg class="moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="status-bar">
+    <div class="status-dot"></div>
+    <span id="status-text">Connecting to server...</span>
+  </div>
+
   <!-- Main card -->
   <main class="page">
 
@@ -126,7 +138,43 @@
       </button>
 
       <p class="bottom-link">Already have an account? <a href="#" class="link"
-          onclick="toast('Sign in page coming soon'); return false">Sign in</a></p>
+          onclick="showView('login'); return false">Sign in</a></p>
+    </section>
+
+    <!-- ── LOGIN SECTION ── -->
+    <section class="card hidden" id="login-view" aria-labelledby="login-title">
+      <div class="card__head">
+        <h1 class="card__title" id="login-title">Welcome back</h1>
+        <p class="card__sub">Sign in to your NexaApp account</p>
+      </div>
+
+      <div class="field">
+        <label class="label" for="l-email">Email Address</label>
+        <div class="input-wrap">
+          <svg class="inp-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="1.8"/></svg>
+          <input class="input" id="l-email" type="email" placeholder="priya@example.com" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="l-pwd">Password</label>
+        <div class="input-wrap">
+          <svg class="inp-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input class="input" id="l-pwd" type="password" placeholder="••••••••" />
+          <button class="eye-btn" type="button" onclick="toggleEye('l-pwd',this)"><svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="12" rx="9" ry="6" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg></button>
+        </div>
+      </div>
+
+      <div class="forgot-row">
+        <a href="#" class="link link--small" onclick="toast('Reset flow coming soon'); return false">Forgot password?</a>
+      </div>
+
+      <button class="btn btn--primary" id="btn-login" onclick="login()">
+        Sign In
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <p class="bottom-link">New here? <a href="#" class="link" onclick="showView('signup'); return false">Create an account</a></p>
     </section>
 
 
@@ -261,6 +309,42 @@
             <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ── DASHBOARD SECTION ── -->
+    <section class="card hidden dashboard" id="dashboard-view" aria-labelledby="dash-title">
+      <div class="dash-profile">
+        <div class="dash-avatar" id="dash-avatar">P</div>
+        <div class="dash-info">
+          <h1 class="card__title" id="dash-title">Welcome, <span id="dash-name">Priya</span>!</h1>
+          <p class="card__sub" id="dash-email">priya@example.com</p>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <span class="dash-card__label">Account Status</span>
+          <span class="dash-card__value dash-card__value--green">Active</span>
+        </div>
+        <div class="dash-card">
+          <span class="dash-card__label">Member Since</span>
+          <span class="dash-card__value" id="dash-date">Today</span>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <h3 class="dash-label">Your Interests</h3>
+        <div class="chips chips--small" id="dash-interests">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="dash-actions">
+        <button class="btn btn--ghost btn--full" onclick="logout()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sign Out
         </button>
       </div>
     </section>

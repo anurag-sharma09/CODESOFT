@@ -1,6 +1,8 @@
-/* NexaApp — Sign Up — JavaScript */
-
+// ── Global State ─────────────────────────────────────
+let healthTimer;
 let step = 1;
+
+/* NexaApp — Sign Up — JavaScript */
 
 // ── Navigation ─────────────────────────────────────
 function showStep(n) {
@@ -13,6 +15,13 @@ function showStep(n) {
 }
 
 function updateProgress(n) {
+  const stepsEl = document.getElementById('steps');
+  if (n > 3) {
+    stepsEl.classList.add('hidden');
+    return;
+  }
+  stepsEl.classList.remove('hidden');
+
   [1,2,3].forEach(i => {
     const dot  = document.getElementById('s-dot-' + i);
     dot.classList.remove('step--active','step--done');
@@ -24,6 +33,32 @@ function updateProgress(n) {
     const line = document.getElementById('s-line-' + i);
     line.classList.toggle('step-line--done', i < n);
   });
+}
+
+// ── View Management ──────────────────────────────────
+function showView(view) {
+  const views = ['step1', 'step2', 'step3', 'step-success', 'login-view', 'dashboard-view'];
+  views.forEach(v => {
+    const el = document.getElementById(v);
+    if (el) el.classList.add('hidden');
+  });
+
+  const stepsEl = document.getElementById('steps');
+  const logoEl  = document.querySelector('.logo');
+
+  if (view === 'signup') {
+    showStep(1);
+    stepsEl.classList.remove('hidden');
+    logoEl.classList.remove('hidden');
+  } else if (view === 'login') {
+    document.getElementById('login-view').classList.remove('hidden');
+    stepsEl.classList.add('hidden');
+    logoEl.classList.remove('hidden');
+  } else if (view === 'dashboard') {
+    document.getElementById('dashboard-view').classList.remove('hidden');
+    stepsEl.classList.add('hidden');
+    logoEl.classList.add('hidden'); // Hide logo on internal dashboard for clean look
+  }
 }
 
 function prev(fromStep) {
@@ -158,14 +193,46 @@ function matchCheck(blur) {
   return false;
 }
 
-// ── Toggle eye ────────────────────────────────────────
-function toggleEye(id, btn) {
-  const inp  = document.getElementById(id);
-  const show = inp.type === 'password';
-  inp.type   = show ? 'text' : 'password';
-  btn.querySelector('svg').innerHTML = show
-    ? `<path d="M3 3l18 18M10.5 10.5A3 3 0 0013.5 13.5M6.2 6.2C4.5 7.4 3 9.1 2 12c2 5 5.5 8 10 8 1.9 0 3.7-.5 5.2-1.4M9.8 4.5C10.5 4.2 11.2 4 12 4c4.5 0 8 3 10 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>`
-    : `<ellipse cx="12" cy="12" rx="9" ry="6" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/>`;
+// ── Authentication (Login) ───────────────────────────
+async function login() {
+  const email = document.getElementById('l-email').value.trim();
+  const password = document.getElementById('l-pwd').value;
+  const btn = document.getElementById('btn-login');
+
+  if (!email || !password) {
+    toast('Please enter both email and password');
+    return;
+  }
+
+  btn.disabled = true;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = `<svg style="animation:kspin .7s linear infinite;flex-shrink:0" width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,.3)" stroke-width="3"/><path d="M12 3a9 9 0 019 9" stroke="white" stroke-width="3" stroke-linecap="round"/></svg> Signing in...`;
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem('nexa_user', JSON.stringify(data.user));
+      populateDashboard(data.user);
+      showView('dashboard');
+      toast('Welcome back, ' + data.user.name.split(' ')[0] + '!');
+    } else {
+      toast(data.error || 'Login failed');
+      shake(btn);
+    }
+  } catch (err) {
+    console.error(err);
+    toast('Connection error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
 }
 
 // ── Create account ────────────────────────────────────
@@ -225,6 +292,7 @@ async function createAccount() {
     const data = await response.json();
 
     if (response.ok) {
+      localStorage.setItem('nexa_user', JSON.stringify({ name, email, interests }));
       showSuccess();
     } else {
       toast(data.error || 'Signup failed');
@@ -269,9 +337,48 @@ function showSuccess() {
   toast('🎉 Welcome to NexaApp, ' + name.split(' ')[0] + '!');
 }
 
-// ── Go to dashboard (demo) ────────────────────────────
+// ── Dashboard ────────────────────────────────────────
+function populateDashboard(user) {
+  document.getElementById('dash-name').textContent = user.name;
+  document.getElementById('dash-email').textContent = user.email;
+  document.getElementById('dash-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+  const chips = document.getElementById('dash-interests');
+  chips.innerHTML = '';
+  if (user.interests && user.interests.length) {
+    user.interests.forEach(interest => {
+      const c = document.createElement('span');
+      c.className = 'chip active';
+      c.textContent = interest;
+      chips.appendChild(c);
+    });
+  } else {
+    chips.innerHTML = '<span class="card__sub">No interests selected</span>';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('nexa_user');
+  showView('login');
+  toast('Signed out successfully');
+}
+
 function goToDashboard() {
-  toast('Dashboard coming soon — thanks for signing up!');
+  const user = JSON.parse(localStorage.getItem('nexa_user'));
+  if (user) {
+    populateDashboard(user);
+    showView('dashboard');
+  } else {
+    showView('login');
+  }
+}
+
+// ── Theme Management ─────────────────────────────────
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const target = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', target);
+  localStorage.setItem('nexa_theme', target);
 }
 
 // ── Toast ─────────────────────────────────────────────
@@ -295,4 +402,64 @@ function shake(el) {
 }
 
 // ── Init ──────────────────────────────────────────────
-showStep(1);
+// ── Health Check ─────────────────────────────────────
+async function checkHealth() {
+  const bar = document.getElementById('status-bar');
+  const txt = document.getElementById('status-text');
+  if (!bar || !txt) return;
+
+  try {
+    const res = await fetch('/api/health');
+    const data = await res.json();
+    
+    bar.className = 'status-bar';
+    if (data.database === 'connected') {
+      bar.classList.add('status-bar--ok');
+      txt.textContent = 'SYSTEM ONLINE';
+    } else {
+      bar.classList.add('status-bar--bad');
+      txt.textContent = 'DATABASE DISCONNECTED (Check IP Whitelist)';
+    }
+  } catch (e) {
+    bar.className = 'status-bar status-bar--bad';
+    txt.textContent = 'SERVER OFFLINE';
+  }
+}
+
+// ── Init ──────────────────────────────────────────────
+async function init() {
+  // Theme
+  const savedTheme = localStorage.getItem('nexa_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
+  // Session
+  const savedUser = localStorage.getItem('nexa_user');
+  if (savedUser) {
+    try {
+      const user = JSON.parse(savedUser);
+      populateDashboard(user);
+      showView('dashboard');
+    } catch (e) {
+      localStorage.removeItem('nexa_user');
+      showView('signup');
+    }
+  } else {
+    showView('signup');
+  }
+
+  // Health
+  checkHealth();
+  healthTimer = setInterval(checkHealth, 5000);
+}
+
+// Ensure toggleEye is present once
+function toggleEye(id, btn) {
+  const inp  = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type   = show ? 'text' : 'password';
+  btn.querySelector('svg').innerHTML = show
+    ? `<path d="M3 3l18 18M10.5 10.5A3 3 0 0013.5 13.5M6.2 6.2C4.5 7.4 3 9.1 2 12c2 5 5.5 8 10 8 1.9 0 3.7-.5 5.2-1.4M9.8 4.5C10.5 4.2 11.2 4 12 4c4.5 0 8 3 10 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>`
+    : `<ellipse cx="12" cy="12" rx="9" ry="6" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/>`;
+}
+
+init();
