@@ -19,7 +19,7 @@ A professional, high-fidelity user management system built for high engagement a
 - **Frontend**: HTML5, CSS3 (Vanilla), JavaScript (ES6+)
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB Atlas (Mongoose)
-- **Deployment**: Vercel ready
+- **Deployment**: netlify ready
 
 ## 📦 Setup & Installation
 
@@ -41,3 +41,5 @@ A professional, high-fidelity user management system built for high engagement a
 
 ## 📄 License
 Internship Project — CODESOFT
+
+PROJECT LINK:- https://codesoft-login.netlify.app/
