@@ -413,12 +413,12 @@ async function checkHealth() {
     const data = await res.json();
     
     bar.className = 'status-bar';
-    if (data.database === 'connected') {
+    if (data.firebase === 'initialized') {
       bar.classList.add('status-bar--ok');
-      txt.textContent = 'SYSTEM ONLINE';
+      txt.textContent = 'SYSTEM ONLINE (Firebase)';
     } else {
       bar.classList.add('status-bar--bad');
-      txt.textContent = 'DATABASE DISCONNECTED (Check IP Whitelist)';
+      txt.textContent = 'FIREBASE NOT INITIALIZED';
     }
   } catch (e) {
     bar.className = 'status-bar status-bar--bad';
