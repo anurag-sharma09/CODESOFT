@@ -2,7 +2,7 @@
   "name": "signup-flow-new",
   "version": "1.0.0",
   "description": "INTERNSHIP",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
@@ -24,6 +24,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "firebase-admin": "^13.8.0"
+    "firebase-admin": "^13.8.0",
+    "serverless-http": "^4.0.0"
   }
 }
